@@ -24,6 +24,7 @@ export default async (req, res) => {
 
         response.temperature = temperature;
         response.currently = currently;
+        response.line_2 = `${currently}, ${temperature}F`
 
         redis_client.setex(key, weather_time_to_live, JSON.stringify(json));
       });
@@ -34,6 +35,7 @@ export default async (req, res) => {
 
       response.temperature = temperature;
       response.currently = currently;
+      response.line_2 = `${currently}, ${temperature}F`
     }
   } catch (error) {
     console.log(error);
@@ -79,7 +81,11 @@ function processDateAndTime() {
   const date = `${month_display}/${day_display}`;
 
   response.date = date;
-  response.day_of_week = dayNames[server_date.getDay()];
+
+  const day_of_week = dayNames[server_date.getDay()];
+  response.day_of_week = day_of_week;
+
+  response.line_1 = `Today is ${day_of_week}, ${date}`
 
   response.brightness = (server_hours > 7 && server_hours < 20) ? 255 : 128;
 
