@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "env": {
+    "REDIS_URL": "@redis_url",
+    "WEATHER_API_KEY": "@weather_api_key"
+  },
+  "build": {
+    "env": {
+      "REDIS_URL": "@redis_url",
+      "WEATHER_API_KEY": "@weather_api_key"
+    }
+  }
+}
