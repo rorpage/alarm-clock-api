@@ -96,4 +96,6 @@ function formatWeather(response, json) {
   response.temperature = temperature;
   response.currently = currentlyFormatted;
   response.line_2 = `${currentlyFormatted}, ${temperature}F`
+
+  return response;
 }
