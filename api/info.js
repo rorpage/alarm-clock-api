@@ -32,10 +32,10 @@ export default async (req, res) => {
     } else {
       const cached_data = JSON.parse(redis_data);
       const temperature = Math.round(cached_data.currently.temperature);
-      const currently = cached_data.currently.summary;
+      const currently = cached_data.currently.summary.toLowerCase();
 
       response.temperature = temperature;
-      response.currently = currently;
+      response.currently = currently.charAt(0).toUpperCase() + currently.substring(1);;
       response.line_2 = `${currently}, ${temperature}F`;
 
       redis_client.quit();
