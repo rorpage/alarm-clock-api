@@ -11,8 +11,8 @@ export default async (req, res) => {
     const redis_client = redis.createClient(host);
     const redis_data = await redis_client.get(key);
 
-    const latitude = process.env.LATITUDE || 39.7707286;
-    const longitude = process.env.LONGITUDE || -86.0703977;
+    const latitude = process.env.LATITUDE || '39.7707286';
+    const longitude = process.env.LONGITUDE || '-86.0703977';
 
     if (redis_data === null) {
       const weatherApiKey = process.env.WEATHER_API_KEY || '';
@@ -83,7 +83,7 @@ function processDateAndTime() {
 
   response.line_1 = `Today is ${day_of_week}, ${date}`
 
-  response.brightness = (server_hours > 7 && server_hours < 20) ? 255 : 128;
+  response.brightness = (server_hours > 7 && server_hours < 20) ? 255 : 100;
 
   return response;
 }
