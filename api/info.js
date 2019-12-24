@@ -27,6 +27,7 @@ export default async (req, res) => {
         response.line_2 = `${currently}, ${temperature}F`
 
         redis_client.setex(key, weather_time_to_live, JSON.stringify(json));
+        redis_client.quit();
       });
     } else {
       const cached_data = JSON.parse(redis_data);
@@ -35,12 +36,12 @@ export default async (req, res) => {
 
       response.temperature = temperature;
       response.currently = currently;
-      response.line_2 = `${currently}, ${temperature}F`
+      response.line_2 = `${currently}, ${temperature}F`;
+
+      redis_client.quit();
     }
   } catch (error) {
     console.log(error);
-  } finally {
-    redis_client.quit();
   }
 
   res.setHeader("Access-Control-Allow-Origin", "*");
