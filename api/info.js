@@ -11,34 +11,25 @@ export default async (req, res) => {
     const redis_client = redis.createClient(host);
     const redis_data = await redis_client.get(key);
 
+    const latitude = process.env.LATITUDE || 39.7707286;
+    const longitude = process.env.LONGITUDE || -86.0703977;
+
     if (redis_data === null) {
       const weatherApiKey = process.env.WEATHER_API_KEY || '';
 
       await fetch(
-        `https://api.darksky.net/forecast/${weatherApiKey}/39.7707286,-86.0703977?exclude=minutely,hourly,alerts,flags`
+        `https://api.darksky.net/forecast/${weatherApiKey}/${latitude},${longitude}?exclude=minutely,hourly,alerts,flags`
       )
       .then((res) => res.json())
       .then((json) => {
-        const temperature = Math.round(json.currently.temperature);
-        const currently = json.currently.summary.toLowerCase();
-        const currentlyFormatted = currently.charAt(0).toUpperCase() + currently.substring(1);
-
-        response.temperature = temperature;
-        response.currently = currentlyFormatted;
-        response.line_2 = `${currentlyFormatted}, ${temperature}F`
+        response = formatWeather(response, json);
 
         redis_client.setex(key, weather_time_to_live, JSON.stringify(json));
         redis_client.quit();
       });
     } else {
       const cached_data = JSON.parse(redis_data);
-      const temperature = Math.round(cached_data.currently.temperature);
-      const currently = cached_data.currently.summary.toLowerCase();
-      const currentlyFormatted = currently.charAt(0).toUpperCase() + currently.substring(1);
-
-      response.temperature = temperature;
-      response.currently = currentlyFormatted;
-      response.line_2 = `${currentlyFormatted}, ${temperature}F`;
+      response = formatWeather(response, cached_data);
 
       redis_client.quit();
     }
@@ -95,4 +86,14 @@ function processDateAndTime() {
   response.brightness = (server_hours > 7 && server_hours < 20) ? 255 : 128;
 
   return response;
+}
+
+function formatWeather(response, json) {
+  const temperature = Math.round(json.currently.temperature);
+  const currently = json.currently.summary.toLowerCase();
+  const currentlyFormatted = currently.charAt(0).toUpperCase() + currently.substring(1);
+
+  response.temperature = temperature;
+  response.currently = currentlyFormatted;
+  response.line_2 = `${currentlyFormatted}, ${temperature}F`
 }

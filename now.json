@@ -1,11 +1,15 @@
 {
   "version": 2,
   "env": {
+    "LATITUDE": "@latitude",
+    "LONGITUDE": "@longitude",
     "REDIS_URL": "@redis_url",
     "WEATHER_API_KEY": "@weather_api_key"
   },
   "build": {
     "env": {
+      "LATITUDE": "@latitude",
+      "LONGITUDE": "@longitude",
       "REDIS_URL": "@redis_url",
       "WEATHER_API_KEY": "@weather_api_key"
     }
