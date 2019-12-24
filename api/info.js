@@ -18,7 +18,7 @@ export default async (req, res) => {
       const weatherApiKey = process.env.WEATHER_API_KEY || '';
 
       await fetch(
-        `https://api.darksky.net/forecast/${weatherApiKey}/${latitude},${longitude}?exclude=minutely,hourly,alerts,flags`
+        `https://api.darksky.net/forecast/${weatherApiKey}/39.7707286,-86.0703977?exclude=minutely,hourly,alerts,flags`
       )
       .then((res) => res.json())
       .then((json) => {
