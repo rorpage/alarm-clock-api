@@ -51,7 +51,7 @@ function processDateAndTime() {
 
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  const utc_offset = -5;
+  const utc_offset = -4;
 
   const client_date = new Date();
   const utc = client_date.getTime() + client_date.getTimezoneOffset() * 60000;
