@@ -15,13 +15,13 @@ export default async (req, res) => {
     const longitude = process.env.LONGITUDE || '-86.0703977';
 
     if (redis_data === null) {
-      const weatherApiKey = process.env.WEATHER_API_KEY || '';
+      const weatherApiKey = process.env.OPENSKY_API_KEY || '';
 
       await fetch(
-        `https://api.darksky.net/forecast/${weatherApiKey}/39.7707286,-86.0703977?exclude=minutely,hourly,alerts,flags`
+        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${weatherApiKey}`
       )
-        .then(res => res.json())
-        .then(json => {
+        .then((res) => res.json())
+        .then((json) => {
           response = formatWeather(response, json);
 
           redis_client.setex(key, weather_time_to_live, JSON.stringify(json));
@@ -92,8 +92,8 @@ function processDateAndTime() {
 }
 
 function formatWeather(response, json) {
-  const temperature = Math.round(json.currently.temperature);
-  const currently = json.currently.summary.toLowerCase();
+  const temperature = Math.round(json.main.temp);
+  const currently = json.weather[0].description;
   const currentlyFormatted =
     currently.charAt(0).toUpperCase() + currently.substring(1);
 

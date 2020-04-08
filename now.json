@@ -3,6 +3,7 @@
   "env": {
     "LATITUDE": "@latitude",
     "LONGITUDE": "@longitude",
+    "OPENSKY_API_KEY": "@opensky_api_key",
     "REDIS_URL": "@redis_url",
     "WEATHER_API_KEY": "@weather_api_key"
   },
@@ -10,6 +11,7 @@
     "env": {
       "LATITUDE": "@latitude",
       "LONGITUDE": "@longitude",
+      "OPENSKY_API_KEY": "@opensky_api_key",
       "REDIS_URL": "@redis_url",
       "WEATHER_API_KEY": "@weather_api_key"
     }
