@@ -18,7 +18,7 @@ export default async (req, res) => {
       const weatherApiKey = process.env.OPENSKY_API_KEY || '';
 
       await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${weatherApiKey}`
+        `https://api.openweathermap.org/data/2.5/weather?lat=39.7707286&lon=-86.0703977&appid=${weatherApiKey}&units=imperial`
       )
         .then((res) => res.json())
         .then((json) => {
