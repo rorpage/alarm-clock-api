@@ -2,7 +2,8 @@ import redis from 'async-redis';
 import fetch from 'node-fetch';
 
 export default async (req, res) => {
-  let response = processDateAndTime();
+  let response = {};
+  let utc_offset = -4;
 
   try {
     const weather_time_to_live = 900;
@@ -24,18 +25,24 @@ export default async (req, res) => {
         .then((json) => {
           response = formatWeather(response, json);
 
+          utc_offset = json.timezone;
+
           redis_client.setex(key, weather_time_to_live, JSON.stringify(json));
           redis_client.quit();
         });
     } else {
       const cached_data = JSON.parse(redis_data);
+
       response = formatWeather(response, cached_data);
+      utc_offset = cached_data.timezone;
 
       redis_client.quit();
     }
   } catch (error) {
     console.log(error);
   }
+
+  response = processDateAndTime(utc_offset, response);
 
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader(
@@ -46,12 +53,10 @@ export default async (req, res) => {
   res.json(response);
 };
 
-function processDateAndTime() {
-  let response = {};
+function processDateAndTime(utc_offset, response) {
+  utc_offset = utc_offset / 3600;
 
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-  const utc_offset = -5;
 
   const client_date = new Date();
   const utc = client_date.getTime() + client_date.getTimezoneOffset() * 60000;
