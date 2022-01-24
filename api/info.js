@@ -1,5 +1,6 @@
 import redis from 'async-redis';
-import fetch from 'node-fetch';
+
+const axios = require('axios').default;
 
 export default async (req, res) => {
   let response = {};
@@ -18,16 +19,15 @@ export default async (req, res) => {
     if (redis_data === null) {
       const weatherApiKey = process.env.OPENSKY_API_KEY || '';
 
-      await fetch(
+      await axios.get(
         `https://api.openweathermap.org/data/2.5/weather?lat=39.7707286&lon=-86.0703977&appid=${weatherApiKey}&units=imperial`
       )
-        .then((res) => res.json())
         .then((json) => {
-          response = formatWeather(response, json);
+          response = formatWeather(response, json.data);
 
-          utc_offset = json.timezone;
+          utc_offset = json.data.timezone;
 
-          redis_client.setex(key, weather_time_to_live, JSON.stringify(json));
+          redis_client.setex(key, weather_time_to_live, JSON.stringify(json.data));
           redis_client.quit();
         });
     } else {
