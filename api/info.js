@@ -1,48 +1,7 @@
-import redis from 'async-redis';
-
 const axios = require('axios').default;
 
 export default async (req, res) => {
-  let response = {};
-  let utc_offset = -4;
-
-  try {
-    const weather_time_to_live = 900;
-    const key = 'weather';
-    const host = process.env.REDIS_URL || 'redis://localhost:6379';
-    const redis_client = redis.createClient(host);
-    const redis_data = await redis_client.get(key);
-
-    const latitude = process.env.LATITUDE || '39.7707286';
-    const longitude = process.env.LONGITUDE || '-86.0703977';
-
-    if (redis_data === null) {
-      const weatherApiKey = process.env.OPENSKY_API_KEY || '';
-
-      await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?lat=39.7707286&lon=-86.0703977&appid=${weatherApiKey}&units=imperial`
-      )
-        .then((json) => {
-          response = formatWeather(response, json.data);
-
-          utc_offset = json.data.timezone;
-
-          redis_client.setex(key, weather_time_to_live, JSON.stringify(json.data));
-          redis_client.quit();
-        });
-    } else {
-      const cached_data = JSON.parse(redis_data);
-
-      response = formatWeather(response, cached_data);
-      utc_offset = cached_data.timezone;
-
-      redis_client.quit();
-    }
-  } catch (error) {
-    console.log(error);
-  }
-
-  response = processDateAndTime(utc_offset, response);
+  const response = await getResponse();
 
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader(
@@ -52,6 +11,28 @@ export default async (req, res) => {
 
   res.json(response);
 };
+
+async function getResponse() {
+  let response = {};
+  let utc_offset = -4;
+
+  try {
+    const weatherApiKey = process.env.OPENSKY_API_KEY || '';
+
+    await axios.get(
+      `https://api.openweathermap.org/data/2.5/weather?lat=39.8695944&lon=-86.0855265&appid=${weatherApiKey}&units=imperial`
+    )
+      .then((json) => {
+        response = formatWeather(response, json.data);
+
+        utc_offset = json.data.timezone;
+      });
+  } catch (error) {
+    console.log(error);
+  }
+
+  return processDateAndTime(utc_offset, response);
+}
 
 function processDateAndTime(utc_offset, response) {
   utc_offset = utc_offset / 3600;
