@@ -8,8 +8,6 @@
     "author": "",
     "license": "MIT",
     "dependencies": {
-        "async-redis": "^1.1.7",
-        "node-fetch": "^2.6.1",
-        "redis": "^3.1.1"
+        "axios": "^0.27.2"
     }
 }
