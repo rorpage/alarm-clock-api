@@ -1,4 +1,5 @@
 const axios = require('axios').default;
+import { createClient } from 'redis';
 
 export default async (req, res) => {
   const response = await getResponse();
@@ -16,19 +17,41 @@ async function getResponse() {
   let response = {};
   let utc_offset = -4;
 
+  const key = 'weather';
+  const weather_time_to_live = 900;
+
+  const host = process.env.REDIS_URL || 'redis://localhost:6379';
+  const redis_client = createClient({ url: host });
+
   try {
-    const weatherApiKey = process.env.OPENSKY_API_KEY || '';
+    await redis_client.connect();
 
-    await axios.get(
-      `https://api.openweathermap.org/data/2.5/weather?lat=39.8695944&lon=-86.0855265&appid=${weatherApiKey}&units=imperial`
-    )
-      .then((json) => {
-        response = formatWeather(response, json.data);
+    const redis_data = await redis_client.get(key);
 
-        utc_offset = json.data.timezone;
-      });
+    if (redis_data === null) {
+      const weatherApiKey = process.env.OPENSKY_API_KEY || '';
+
+      await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?lat=39.8695944&lon=-86.0855265&appid=${weatherApiKey}&units=imperial`
+      )
+        .then(async (json) => {
+          response = formatWeather(response, json.data);
+
+          utc_offset = json.data.timezone;
+
+          await redis_client.setEx(key, weather_time_to_live, JSON.stringify(json.data));
+        });
+    } else {
+      const cached_data = JSON.parse(redis_data);
+
+      response = formatWeather(response, cached_data);
+
+      utc_offset = cached_data.timezone;
+    }
   } catch (error) {
     console.log(error);
+  } finally {
+    redis_client.quit();
   }
 
   return processDateAndTime(utc_offset, response);
