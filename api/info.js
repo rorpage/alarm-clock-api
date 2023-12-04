@@ -35,7 +35,9 @@ async function getResponse() {
         `https://api.openweathermap.org/data/2.5/weather?lat=39.8695944&lon=-86.0855265&appid=${weatherApiKey}&units=imperial`
       )
         .then(async (json) => {
-          response.temperature = Math.round(json.data.main.temp);
+          const temperature = json.data.main.temp;
+          response.temperature = Math.round(temperature);
+          response.temp_c = fahrenheitToCelsius(temperature);
 
           utc_offset = json.data.timezone;
 
@@ -44,7 +46,9 @@ async function getResponse() {
     } else {
       const cached_data = JSON.parse(redis_data);
 
-      response.temperature = Math.round(cached_data.main.temp);
+      const temperature = cached_data.main.temp;
+      response.temperature = Math.round(temperature);
+      response.temp_c = fahrenheitToCelsius(temperature);
 
       utc_offset = cached_data.timezone;
     }
@@ -90,4 +94,8 @@ function processDateAndTime(utc_offset, response) {
   response.brightness = server_hours > 7 && server_hours < 20 ? 255 : 100;
 
   return response;
+}
+
+function fahrenheitToCelsius(temperature) {
+  return Math.round((temperature - 32) * (5 / 9));
 }

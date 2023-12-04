@@ -1,14 +1,17 @@
 {
-    "name": "alarm-clock-api",
-    "version": "1.0.0",
-    "description": "Provides time and weather for my alarm clock",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "author": "",
-    "license": "MIT",
-    "dependencies": {
-        "axios": "^0.27.2",
-        "redis": "^4.2.0"
-    }
+  "name": "alarm-clock-api",
+  "version": "1.0.0",
+  "description": "Provides time and weather for my alarm clock",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "redis": "^4.2.0"
+  }
 }

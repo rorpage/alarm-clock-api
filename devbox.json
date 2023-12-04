@@ -1,0 +1,13 @@
+{
+  "packages": [
+    "nodejs-18_x@latest"
+  ],
+  "shell": {
+    "init_hook": null,
+    "scripts": {
+      "test": [
+        "echo \"Error: no test specified\" && exit 1"
+      ]
+    }
+  }
+}
