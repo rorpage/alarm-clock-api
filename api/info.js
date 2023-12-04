@@ -1,7 +1,7 @@
-const axios = require('axios').default;
+import axios from 'axios';
 import { createClient } from 'redis';
 
-export default async (_req, res) => {
+export default async function(_req, res) {
   const response = await getResponse();
 
   res.setHeader('Access-Control-Allow-Origin', '*');
