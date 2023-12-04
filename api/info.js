@@ -1,7 +1,7 @@
 const axios = require('axios').default;
 import { createClient } from 'redis';
 
-export default async (req, res) => {
+export default async (_req, res) => {
   const response = await getResponse();
 
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -35,7 +35,7 @@ async function getResponse() {
         `https://api.openweathermap.org/data/2.5/weather?lat=39.8695944&lon=-86.0855265&appid=${weatherApiKey}&units=imperial`
       )
         .then(async (json) => {
-          response = formatWeather(response, json.data);
+          response.temperature = Math.round(json.data.main.temp);
 
           utc_offset = json.data.timezone;
 
@@ -44,7 +44,7 @@ async function getResponse() {
     } else {
       const cached_data = JSON.parse(redis_data);
 
-      response = formatWeather(response, cached_data);
+      response.temperature = Math.round(cached_data.main.temp);
 
       utc_offset = cached_data.timezone;
     }
@@ -59,8 +59,6 @@ async function getResponse() {
 
 function processDateAndTime(utc_offset, response) {
   utc_offset = utc_offset / 3600;
-
-  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   const client_date = new Date();
   const utc = client_date.getTime() + client_date.getTimezoneOffset() * 60000;
@@ -89,26 +87,7 @@ function processDateAndTime(utc_offset, response) {
   const date = `${month_display}/${day_display}`;
 
   response.date = date;
-
-  const day_of_week = dayNames[server_date.getDay()];
-  response.day_of_week = day_of_week;
-
-  response.line_1 = `Today is ${day_of_week}, ${date}`;
-
   response.brightness = server_hours > 7 && server_hours < 20 ? 255 : 100;
-
-  return response;
-}
-
-function formatWeather(response, json) {
-  const temperature = Math.round(json.main.temp);
-  const currently = json.weather[0].description;
-  const currentlyFormatted =
-    currently.charAt(0).toUpperCase() + currently.substring(1);
-
-  response.temperature = temperature;
-  response.currently = currentlyFormatted;
-  response.line_2 = `${currentlyFormatted}, ${temperature}F`;
 
   return response;
 }
